@@ -1,0 +1,22 @@
+FROM registry.gitlab.com/bugs_coder/finanzas-db:latest as db
+WORKDIR /db
+
+FROM mcr.microsoft.com/mssql/server:2019-latest AS mssql
+
+USER root
+
+# Create app directory
+WORKDIR /db
+
+# Copy initialization scripts
+COPY --from=db /db /db
+
+# Expose port 1433 in case accesing from other container
+EXPOSE 1433
+
+RUN chmod +x /db/entrypoint.sh
+RUN chmod +x /db/run-initialization.sh
+
+# Run Microsoft SQl Server and initialization script (at the same time)
+# Note: If you want to start MsSQL only (without initialization script) you can comment bellow line out, CMD entry from base image will be taken
+CMD /bin/bash ./entrypoint.sh $SA_PASSWORD

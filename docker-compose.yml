@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+    nginx:
+       container_name: nginx-proxy
+       build: ./nginx 
+       ports:
+           - "3101:80"
+       links:
+           - webapp:webapp
+    #restart: always
+       depends_on: 
+           - webapp
+    webapp:
+        container_name: dotnet-app
+        build: 
+            context: ./app
+        ports:
+            - "3102:80"
+        depends_on: 
+            - sql   
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Testing
+    #restart: always
+    
+    sql:
+        container_name: db
+        build: ./db
+        ports:
+            - "1434:1433"
+        volumes:
+            - ./sqldata:/var/opt/mssql/data
+            - ./sqllog:/var/opt/mssql/log
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=Sql12345
+    #restart: always

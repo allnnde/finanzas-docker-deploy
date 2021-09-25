@@ -1,0 +1,14 @@
+FROM registry.gitlab.com/bugs_coder/finanzas-backend-netcore:latest as back
+WORKDIR /app
+
+FROM registry.gitlab.com/bugs_coder/finanzas-frontend-angular:latest as front
+WORKDIR /app
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
+WORKDIR /app
+COPY --from=back /app .
+COPY --from=front /app ./wwwroot
+EXPOSE  80
+EXPOSE  442
+ENTRYPOINT ["dotnet", "Finanzas.Presentation.API.dll"]
